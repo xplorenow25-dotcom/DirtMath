@@ -26,7 +26,9 @@
 
         body {
             background: radial-gradient(circle at top center, #1c1f26, var(--bg-dark));
-            color: var(--text-main); padding-bottom: 50px; min-height: 100vh;
+            color: var(--text-main); 
+            padding-bottom: 100px; /* Extra padding so content isn't hidden behind bottom nav */
+            min-height: 100vh;
         }
 
         /* --- ANIMATIONS --- */
@@ -87,12 +89,6 @@
         input:focus, select:focus { outline: none; border-color: var(--brand-gold); box-shadow: 0 0 0 3px var(--brand-gold-glow); }
         input::placeholder { color: #6B7280; font-weight: 500; font-size: 1.1rem; }
 
-        /* --- BUTTONS --- */
-        .actions { display: flex; gap: 12px; margin-top: 25px; }
-        .btn-action { flex: 1; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-slate); border-radius: 12px; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; min-height: 54px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-action:active { transform: translateY(2px) scale(0.97); }
-        .btn-action.primary { background: var(--brand-gold); color: var(--bg-dark); border: none; }
-
         /* --- HISTORY TAPE --- */
         .history-tape { margin-top: 35px; background: var(--card-slate); padding: 20px; border-radius: 16px; border: 1px solid var(--border-slate); }
         .history-header { border-bottom: 1px solid var(--border-slate); padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content: space-between; align-items:center;}
@@ -103,6 +99,25 @@
         .history-subtitle { color: var(--brand-gold); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         .history-res { font-size: 1.2rem; font-weight: 600; color: var(--success-green); margin: 4px 0; }
 
+        /* --- BOTTOM NAVBAR --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(30, 33, 38, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-slate);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 5px; padding-bottom: env(safe-area-inset-bottom, 12px);
+            z-index: 1000; box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+        }
+        .nav-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+            flex: 1; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .nav-btn.primary { color: var(--brand-gold); }
+        .nav-btn svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; }
+        .nav-btn:active { transform: scale(0.92); }
+
         /* --- MODALS --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s ease; }
         .modal-box { background: var(--card-slate); padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid var(--border-slate); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
@@ -110,6 +125,9 @@
         .modal-box p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; line-height:1.4; }
         
         .usage-tracker { font-size:0.85rem; color:var(--text-muted); text-align:center; margin-top:10px; }
+        .btn-action { flex: 1; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-slate); border-radius: 12px; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; min-height: 54px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-action:active { transform: translateY(2px) scale(0.97); }
+        .btn-action.primary { background: var(--brand-gold); color: var(--bg-dark); border: none; }
     </style>
 </head>
 <body>
@@ -117,12 +135,12 @@
     <!-- TOP BAR -->
     <header class="top-bar">
         <div class="header-left">
-            <button class="btn-icon" id="btn-back" onclick="goHome()" style="display:none;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <button class="btn-icon" id="btn-back" onclick="goHome()" style="display:none;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
             <h1 id="app-title">Dirt<span>Math</span><span class="pro-badge" id="pro-badge">PRO</span></h1>
         </div>
         <div class="header-left">
             <div class="unit-toggle" id="unit-toggle-box"><button id="btn-metric" onclick="switchUnit('metric')">Metric</button><button id="btn-imperial" class="active" onclick="switchUnit('imperial')">Imperial</button></div>
-            <button class="btn-icon" id="btn-settings" onclick="openSettings()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+            <button class="btn-icon" id="btn-settings" onclick="openSettings()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
         </div>
     </header>
 
@@ -194,7 +212,6 @@
         </div>
         <div class="calc-form active" style="display:block; margin-top:20px;">
             <h3 style="color:var(--text-main); margin-bottom:10px;">Developer Tools</h3>
-            <button class="btn-action" onclick="exportBackup()" style="width:100%; margin-bottom:10px;">Export History Backup</button>
             <button class="btn-action" onclick="resetApp()" style="width:100%; border-color:red; color:red;">Reset App (Lock Pro)</button>
         </div>
     </div>
@@ -216,11 +233,6 @@
         <div id="form-weight" class="calc-form"><div class="input-group"><label>Total Volume <span class="unit-label lbl-vol"></span></label><input type="number" id="wt-v" placeholder="e.g. 10"></div><div class="input-group"><label>Material Type</label><select id="wt-mat"><option value="1600">Dry Sand</option><option value="2000">Wet Sand / Gravel</option><option value="1200">Loose Topsoil</option><option value="2400">Solid Concrete</option></select></div></div>
         <div id="form-swell" class="calc-form"><div class="input-group"><label>Bank/Dug Volume <span class="unit-label lbl-vol"></span></label><input type="number" id="sw-v" placeholder="e.g. 100"></div><div class="input-group"><label>Soil Type (Swell %)</label><select id="sw-pct"><option value="0.12">Sand / Gravel (12%)</option><option value="0.25" selected>Standard Earth (25%)</option><option value="0.40">Hard Clay (40%)</option><option value="0.60">Blasted Rock (60%)</option></select></div></div>
 
-        <!-- ACTIONS -->
-        <div class="actions">
-            <button class="btn-action primary" onclick="triggerAction('pdf')">Share PDF</button>
-            <button class="btn-action" onclick="triggerAction('log')">Log Result</button>
-        </div>
         <!-- USAGE TRACKERS -->
         <div id="usage-display" class="usage-tracker"></div>
 
@@ -230,13 +242,29 @@
         </div>
     </div>
 
+    <!-- BOTTOM NAVBAR -->
+    <nav class="bottom-nav">
+        <button class="nav-btn primary" onclick="handleNavAction('pdf')">
+            <svg viewBox="0 0 24 24"><path fill="none" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline fill="none" points="14 2 14 8 20 8"></polyline><line fill="none" x1="12" y1="18" x2="12" y2="12"></line><polyline fill="none" points="9 15 12 18 15 15"></polyline></svg>
+            Save PDF
+        </button>
+        <button class="nav-btn primary" onclick="handleNavAction('log')">
+            <svg viewBox="0 0 24 24"><path fill="none" d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            Log History
+        </button>
+        <button class="nav-btn" onclick="exportBackup()">
+            <svg viewBox="0 0 24 24"><path fill="none" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline fill="none" points="17 8 12 3 7 8"></polyline><line fill="none" x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Export Logs
+        </button>
+    </nav>
+
     <script>
         // --- PAYWALL & USAGE ENGINE ---
         let isProUser = localStorage.getItem('dm_is_pro') === 'true';
         const FREE_LIMIT = 5;
 
         function checkMonthlyUsage() {
-            const currentMonth = new Date().toISOString().slice(0, 7); // e.g. "2023-10"
+            const currentMonth = new Date().toISOString().slice(0, 7); 
             if (localStorage.getItem('dm_usage_month') !== currentMonth) {
                 localStorage.setItem('dm_usage_month', currentMonth);
                 localStorage.setItem('dm_pdf_count', '0');
@@ -272,15 +300,10 @@
         }
         function closePaywall() { document.getElementById('paywall-modal').style.display = 'none'; }
         
-        // This is your simulated Stripe/Apple purchase button
         function testUnlockPro() {
-            localStorage.setItem('dm_is_pro', 'true');
-            isProUser = true;
-            closePaywall();
-            updateUIForPro();
-            alert("App Unlocked! Thank you for purchasing DirtMath Pro.");
+            localStorage.setItem('dm_is_pro', 'true'); isProUser = true; closePaywall(); updateUIForPro(); alert("App Unlocked! Thank you for purchasing DirtMath Pro.");
         }
-        function resetApp() { localStorage.setItem('dm_is_pro', 'false'); isProUser=false; updateUIForPro(); goHome(); alert("App reset to Free mode for testing.");}
+        function resetApp() { localStorage.setItem('dm_is_pro', 'false'); isProUser=false; updateUIForPro(); goHome(); alert("App reset to Free mode.");}
 
 
         // --- STATE & NAVIGATION ---
@@ -302,7 +325,7 @@
         function hideAllViews() { viewHome.classList.remove('active'); viewCalc.classList.remove('active'); viewSettings.classList.remove('active'); }
 
         function openSettings() {
-            hideAllViews(); viewSettings.classList.add('active'); btnBack.style.display = 'flex'; btnSettings.style.display = 'none'; unitToggleBox.style.display = 'none'; appTitle.innerHTML = 'Settings';
+            hideAllViews(); activeCalcId = ''; viewSettings.classList.add('active'); btnBack.style.display = 'flex'; btnSettings.style.display = 'none'; unitToggleBox.style.display = 'none'; appTitle.innerHTML = 'Settings';
         }
 
         function openCalc(calcId, calcName) {
@@ -321,7 +344,7 @@
         }
 
         function goHome() {
-            hideAllViews(); viewHome.classList.add('active');
+            hideAllViews(); activeCalcId = ''; viewHome.classList.add('active');
             btnBack.style.display = 'none'; btnSettings.style.display = 'flex'; unitToggleBox.style.display = 'flex'; appTitle.innerHTML = 'Dirt<span>Math</span>';
         }
 
@@ -361,19 +384,26 @@
             primaryResult.innerHTML = res1; secondaryResult.innerText = res2;
         }
 
-        // --- ACTION MODALS & USAGE CHECKS ---
-        function triggerAction(action) {
-            if(primaryResult.innerText === "0.00" || primaryResult.innerText.includes("NaN")) { alert("Please enter values first."); return; }
-            
-            if (!isProUser) {
-                if (getUsage(action) >= FREE_LIMIT) {
-                    showPaywall(`You have reached your limit of 5 free ${action === 'pdf' ? 'PDFs' : 'Logs'} for this month.`); return;
-                }
+        // --- ACTION MODALS & USAGE CHECKS FROM BOTTOM NAV ---
+        function handleNavAction(action) {
+            // Check if they are actually in a calculator before saving/printing
+            if (!activeCalcId && (action === 'pdf' || action === 'log')) {
+                alert("Please open a calculator to generate a report or log.");
+                return;
             }
 
-            pendingAction = action;
-            document.getElementById('project-modal').style.display = 'flex';
-            document.getElementById('modal-proj-name').focus();
+            if (action === 'pdf' || action === 'log') {
+                if(primaryResult.innerText === "0.00" || primaryResult.innerText.includes("NaN")) { alert("Please enter values first."); return; }
+                
+                if (!isProUser) {
+                    if (getUsage(action) >= FREE_LIMIT) {
+                        showPaywall(`You have reached your limit of 5 free ${action === 'pdf' ? 'PDFs' : 'Logs'} for this month.`); return;
+                    }
+                }
+                pendingAction = action;
+                document.getElementById('project-modal').style.display = 'flex';
+                document.getElementById('modal-proj-name').focus();
+            }
         }
 
         function closeModal() { document.getElementById('project-modal').style.display = 'none'; document.getElementById('modal-proj-name').value = ''; }
@@ -401,9 +431,9 @@
         }
 
         function exportBackup() {
-            const history = localStorage.getItem('tc_history'); if(!history) { alert("No history to backup."); return; }
+            const history = localStorage.getItem('tc_history'); if(!history) { alert("No history to export."); return; }
             const blob = new Blob([history], { type: "application/json" }); const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = "DirtMath_Backup.json"; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = "DirtMath_Logs.json"; a.click();
         }
 
         // --- PDF GENERATOR ---
