@@ -32,28 +32,30 @@
     </header>
 
     <!-- VIEW 0: AUTHENTICATION (LOGIN) -->
-    <div id="view-auth" class="view active">
+    <div id="view-auth" class="auth-wrapper active">
         <div class="auth-box glass">
-            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 5px;">Dirt<span style="color:var(--brand-gold);">Math</span></h1>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">The Blue-Collar Toolkit</p>
+            <div class="auth-header">
+                <h1>Dirt<span class="text-gold">Math</span></h1>
+                <p>The Blue-Collar Toolkit</p>
+            </div>
             
             <div id="login-form">
-                <div class="input-group" style="text-align: left;">
+                <div class="input-group">
                     <label>Email</label>
                     <input type="email" id="auth-email" placeholder="name@company.com">
                 </div>
-                <div class="input-group" style="text-align: left;">
+                <div class="input-group">
                     <label>Password</label>
                     <input type="password" id="auth-pass" placeholder="••••••••">
                 </div>
-                <button class="btn-action primary" id="btn-auth-submit" style="width: 100%; margin-top: 10px;">Sign In</button>
-                <p id="auth-toggle-text" style="margin-top: 20px; font-size: 0.9rem; color: var(--text-muted);">
-                    Don't have an account? <span id="btn-toggle-auth" style="color: var(--brand-gold); cursor: pointer; font-weight: 700;">Create one</span>
+                <button class="btn-action primary" id="btn-auth-submit" style="width: 100%; margin-top: 15px; height: 56px; font-size: 1.1rem;">Sign In</button>
+                <p id="auth-toggle-text" class="auth-toggle">
+                    Don't have an account? <span id="btn-toggle-auth">Create one</span>
                 </p>
             </div>
         </div>
     </div>
-
+    
     <!-- PAYWALL MODAL -->
     <div id="paywall-modal" class="modal-overlay">
         <div class="modal-box glass" style="border-color:rgba(245, 166, 35, 0.5);">
