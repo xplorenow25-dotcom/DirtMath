@@ -4,474 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DirtMath Pro</title>
-    <!-- jsPDF for Advanced PDF Generation -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        /* ========================================
-           PREMIUM "PRO TOOL" AESTHETIC
-           ======================================== */
-        :root {
-            --brand-gold: #F5A623; 
-            --brand-gold-glow: rgba(245, 166, 35, 0.3);
-            --bg-dark: #121418; 
-            --card-slate: #1E2126; 
-            --border-slate: #2E323A;
-            --text-main: #F4F4F5;
-            --text-muted: #A1A1AA;
-            --success-green: #34D399;
-            --locked-gray: #4A4D55;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background: radial-gradient(circle at top center, #1c1f26, var(--bg-dark));
-            color: var(--text-main); 
-            padding-bottom: 100px; /* Extra padding so content isn't hidden behind bottom nav */
-            min-height: 100vh;
-        }
-
-        /* --- ANIMATIONS --- */
-        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulseResult { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-
-        /* --- TOP BAR --- */
-        .top-bar {
-            background: rgba(30, 33, 38, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border-slate); box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            position: sticky; top: 0; z-index: 100;
-        }
-
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .btn-icon { background: var(--card-slate); color: var(--brand-gold); border: 1px solid var(--border-slate); border-radius: 12px; font-size: 1.2rem; min-height: 48px; min-width: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
-        .btn-icon:active { transform: scale(0.92); }
-
-        .top-bar h1 { color: var(--text-main); font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; }
-        .top-bar h1 span { color: var(--brand-gold); }
-        .pro-badge { display:none; background:var(--brand-gold); color:var(--bg-dark); font-size:0.6rem; font-weight:900; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
-
-        .unit-toggle { display: flex; background: var(--bg-dark); border: 1px solid var(--border-slate); border-radius: 10px; padding: 4px; }
-        .unit-toggle button { background: transparent; color: var(--text-muted); border: none; padding: 0 16px; font-weight: 600; font-size: 0.9rem; border-radius: 6px; min-height: 40px; cursor: pointer; transition: all 0.2s ease; }
-        .unit-toggle button.active { background: var(--brand-gold); color: var(--bg-dark); box-shadow: 0 2px 8px var(--brand-gold-glow); }
-
-        /* --- VIEWS --- */
-        .view { display: none; padding: 20px 15px; }
-        .view.active { display: block; animation: fadeSlideIn 0.35s ease forwards; }
-
-        /* --- MENU --- */
-        .category-title { color: var(--brand-gold); font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin: 25px 0 12px; padding-left: 5px; opacity: 0.9; }
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        .btn-menu {
-            background: var(--card-slate); color: var(--text-main); border: 1px solid var(--border-slate); border-radius: 14px;
-            padding: 18px 20px; font-size: 1.15rem; font-weight: 600; text-align: left;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; display: flex; justify-content: space-between; transition: all 0.2s ease;
-        }
-        .btn-menu:active { transform: scale(0.97); border-color: var(--brand-gold); }
-        .btn-menu.locked { color: var(--locked-gray); border-color: var(--border-slate); }
-        .btn-menu.locked span { color: var(--locked-gray); }
-
-        /* --- CALCULATOR UI --- */
-        .results-board { background: linear-gradient(135deg, var(--brand-gold), #D48806); color: var(--bg-dark); padding: 24px 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 8px 25px var(--brand-gold-glow); position: relative; overflow: hidden; }
-        .results-board h2 { font-size: 0.95rem; text-transform: uppercase; font-weight: 800; opacity: 0.8; letter-spacing: 1px; }
-        .results-output { font-size: 2.8rem; font-weight: 900; line-height: 1.1; margin-top: 5px; transform-origin: left center; }
-        .results-output.animating { animation: pulseResult 0.3s ease-out; }
-        .results-sub { font-size: 1.1rem; font-weight: 700; margin-top: 8px; opacity: 0.9; }
-
-        .calc-form { display: none; background: var(--card-slate); padding: 24px 20px; border-radius: 16px; border: 1px solid var(--border-slate); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .calc-form.active { display: block; animation: fadeSlideIn 0.4s ease forwards; }
-
-        .input-group { margin-bottom: 22px; }
-        .input-group label { display: block; margin-bottom: 10px; font-size: 1.05rem; font-weight: 600; color: var(--text-muted); }
-        .unit-label { color: var(--brand-gold); }
-        input, select { width: 100%; background: var(--bg-dark); border: 2px solid var(--border-slate); color: var(--text-main); border-radius: 10px; padding: 14px; font-size: 1.2rem; font-weight: 600; transition: all 0.2s ease; }
-        input:focus, select:focus { outline: none; border-color: var(--brand-gold); box-shadow: 0 0 0 3px var(--brand-gold-glow); }
-        input::placeholder { color: #6B7280; font-weight: 500; font-size: 1.1rem; }
-
-        /* --- HISTORY TAPE --- */
-        .history-tape { margin-top: 35px; background: var(--card-slate); padding: 20px; border-radius: 16px; border: 1px solid var(--border-slate); }
-        .history-header { border-bottom: 1px solid var(--border-slate); padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content: space-between; align-items:center;}
-        .history-header h2 { font-size: 1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .history-item { padding: 15px 0; border-bottom: 1px dashed var(--border-slate); }
-        .history-item:last-child { border-bottom: none; padding-bottom: 0; }
-        .history-title { color: var(--text-main); font-size: 1.1rem; font-weight: 800; margin-bottom: 5px; }
-        .history-subtitle { color: var(--brand-gold); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        .history-res { font-size: 1.2rem; font-weight: 600; color: var(--success-green); margin: 4px 0; }
-
-        /* --- BOTTOM NAVBAR --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(30, 33, 38, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-slate);
-            display: flex; justify-content: space-around; align-items: center;
-            padding: 12px 5px; padding-bottom: env(safe-area-inset-bottom, 12px);
-            z-index: 1000; box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
-        }
-        .nav-btn {
-            background: transparent; border: none; color: var(--text-muted);
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
-            font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
-            flex: 1; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .nav-btn.primary { color: var(--brand-gold); }
-        .nav-btn svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; }
-        .nav-btn:active { transform: scale(0.92); }
-
-        /* --- MODALS --- */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s ease; }
-        .modal-box { background: var(--card-slate); padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid var(--border-slate); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        .modal-box h3 { color: var(--brand-gold); margin-bottom: 10px; font-size: 1.3rem; }
-        .modal-box p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; line-height:1.4; }
-        
-        .usage-tracker { font-size:0.85rem; color:var(--text-muted); text-align:center; margin-top:10px; }
-        .btn-action { flex: 1; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-slate); border-radius: 12px; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; min-height: 54px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-action:active { transform: translateY(2px) scale(0.97); }
-        .btn-action.primary { background: var(--brand-gold); color: var(--bg-dark); border: none; }
-    </style>
+    <script src="script.js" defer></script>
 </head>
 <body>
 
+    <!-- ANIMATED BACKGROUND -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
     <!-- TOP BAR -->
-    <header class="top-bar">
+    <header class="top-bar glass" id="main-top-bar" style="display: none;">
         <div class="header-left">
-            <button class="btn-icon" id="btn-back" onclick="goHome()" style="display:none;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-            <h1 id="app-title">Dirt<span>Math</span><span class="pro-badge" id="pro-badge">PRO</span></h1>
+            <button class="btn-icon" id="btn-back" style="display:none;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 id="app-title">Dirt<span class="text-gold">Math</span><span class="pro-badge" id="pro-badge">PRO</span></h1>
         </div>
         <div class="header-left">
-            <div class="unit-toggle" id="unit-toggle-box"><button id="btn-metric" onclick="switchUnit('metric')">Metric</button><button id="btn-imperial" class="active" onclick="switchUnit('imperial')">Imperial</button></div>
-            <button class="btn-icon" id="btn-settings" onclick="openSettings()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+            <div class="unit-toggle" id="unit-toggle-box"><button id="btn-metric">Metric</button><button id="btn-imperial" class="active">Imperial</button></div>
+            <button class="btn-icon" id="btn-settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
         </div>
     </header>
 
+    <!-- VIEW 0: AUTHENTICATION (LOGIN) -->
+    <div id="view-auth" class="view active" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div class="auth-box glass" style="width: 100%; max-width: 400px; padding: 40px 25px; text-align: center;">
+            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 5px;">Dirt<span style="color:var(--brand-gold);">Math</span></h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">The Blue-Collar Toolkit</p>
+            
+            <div id="login-form">
+                <div class="input-group" style="text-align: left;">
+                    <label>Email</label>
+                    <input type="email" id="auth-email" placeholder="name@company.com">
+                </div>
+                <div class="input-group" style="text-align: left;">
+                    <label>Password</label>
+                    <input type="password" id="auth-pass" placeholder="••••••••">
+                </div>
+                <button class="btn-action primary" id="btn-auth-submit" style="width: 100%; margin-top: 10px;">Sign In</button>
+                <p id="auth-toggle-text" style="margin-top: 20px; font-size: 0.9rem; color: var(--text-muted);">
+                    Don't have an account? <span id="btn-toggle-auth" style="color: var(--brand-gold); cursor: pointer; font-weight: 700;">Create one</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- PAYWALL MODAL -->
     <div id="paywall-modal" class="modal-overlay">
-        <div class="modal-box" style="border-color:var(--brand-gold);">
+        <div class="modal-box glass" style="border-color:rgba(245, 166, 35, 0.5);">
             <h3 style="font-size:1.5rem; text-align:center;">🛑 DirtMath PRO</h3>
             <p id="paywall-msg" style="text-align:center; color:#fff; font-weight:bold; margin-bottom:5px;">This is a Pro Tool.</p>
             <p style="text-align:center; margin-bottom:20px;">Stop arguing with clients over materials. Upgrade once, own it forever.</p>
-            <ul style="color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:20px; padding-left:20px;">
+            <ul style="color:var(--text-muted); font-size:0.95rem; line-height:1.6; margin-bottom:20px; padding-left:20px;">
                 <li>Unlimited PDF Estimates (Branded)</li>
-                <li>Unlimited History Logging</li>
+                <li>Unlimited Excel Log Exports</li>
                 <li>Unlock all 4 Pro Calculators</li>
                 <li>No Ads. Ever.</li>
             </ul>
-            <button class="btn-action primary" onclick="testUnlockPro()" style="width:100%; font-size:1.2rem;">Unlock PRO - $14.99</button>
-            <button class="btn-action" onclick="closePaywall()" style="width:100%; margin-top:10px; background:transparent; border:none;">Cancel</button>
+            <a href="https://yourname.gumroad.com/l/dirtmath" style="text-decoration:none;">
+                <button class="btn-action primary" style="width:100%; font-size:1.2rem;">Unlock PRO - $14.99</button>
+            </a>
+            <button class="btn-action" id="btn-close-paywall" style="width:100%; margin-top:10px; background:transparent; border:none;">Cancel</button>
         </div>
     </div>
 
     <!-- PROJECT NAME MODAL -->
     <div id="project-modal" class="modal-overlay">
-        <div class="modal-box">
+        <div class="modal-box glass">
             <h3>Project Details</h3>
             <p>Enter a title for this calculation so it looks professional on the PDF and History log.</p>
             <input type="text" id="modal-proj-name" placeholder="e.g. Main St. Driveway" style="margin-bottom:20px;">
             <div style="display:flex; gap:10px;">
-                <button class="btn-action" onclick="closeModal()">Cancel</button>
-                <button class="btn-action primary" onclick="confirmModal()">Confirm</button>
+                <button class="btn-action" id="btn-close-modal">Cancel</button>
+                <button class="btn-action primary" id="btn-confirm-modal">Confirm</button>
             </div>
         </div>
     </div>
 
     <!-- VIEW 1: HOME MENU -->
-    <div id="view-home" class="view active">
+    <div id="view-home" class="view">
         <div class="category-title">A. Excavator's Toolkit</div>
         <div class="menu-grid">
-            <button class="btn-menu locked" id="btn-prod" onclick="openCalc('prod', 'Productivity')">1. Productivity Calc <span>🔒</span></button>
-            <button class="btn-menu" id="btn-bucket" onclick="openCalc('bucket', 'Bucket Capacity')">2. Bucket Capacity <span>&#8250;</span></button>
-            <button class="btn-menu locked" id="btn-fuel" onclick="openCalc('fuel', 'Fuel Cost Estimator')">3. Fuel Cost Estimator <span>🔒</span></button>
-            <button class="btn-menu" id="btn-trench" onclick="openCalc('trench', 'Trench Volume')">4. Trench Volume <span>&#8250;</span></button>
+            <button class="btn-menu locked glass" data-calc="prod" data-name="Productivity">1. Productivity Calc <span>🔒</span></button>
+            <button class="btn-menu glass" data-calc="bucket" data-name="Bucket Capacity">2. Bucket Capacity <span>&#8250;</span></button>
+            <button class="btn-menu locked glass" data-calc="fuel" data-name="Fuel Cost Estimator">3. Fuel Cost Estimator <span>🔒</span></button>
+            <button class="btn-menu glass" data-calc="trench" data-name="Trench Volume">4. Trench Volume <span>&#8250;</span></button>
         </div>
 
         <div class="category-title">B. Concrete & Masonry</div>
         <div class="menu-grid">
-            <button class="btn-menu" id="btn-slab" onclick="openCalc('slab', 'Slab & Driveway')">5. Slab/Driveway Pour <span>&#8250;</span></button>
-            <button class="btn-menu locked" id="btn-curb" onclick="openCalc('curb', 'Curb & Gutter')">6. Curb & Gutter <span>🔒</span></button>
-            <button class="btn-menu" id="btn-post" onclick="openCalc('post', 'Post Hole / Footing')">7. Post Hole / Footing <span>&#8250;</span></button>
-            <button class="btn-menu" id="btn-block" onclick="openCalc('block', 'Brick & Block')">8. Brick & Block Counter <span>&#8250;</span></button>
+            <button class="btn-menu glass" data-calc="slab" data-name="Slab & Driveway">5. Slab/Driveway Pour <span>&#8250;</span></button>
+            <button class="btn-menu locked glass" data-calc="curb" data-name="Curb & Gutter">6. Curb & Gutter <span>🔒</span></button>
+            <button class="btn-menu glass" data-calc="post" data-name="Post Hole / Footing">7. Post Hole / Footing <span>&#8250;</span></button>
+            <button class="btn-menu glass" data-calc="block" data-name="Brick & Block">8. Brick & Block Counter <span>&#8250;</span></button>
         </div>
 
         <div class="category-title">C. General Utility</div>
         <div class="menu-grid">
-            <button class="btn-menu" id="btn-unit" onclick="openCalc('unit', 'Unit Converter')">9. Unit Converter <span>&#8250;</span></button>
-            <button class="btn-menu" id="btn-weight" onclick="openCalc('weight', 'Material Weight')">10. Material Weight <span>&#8250;</span></button>
-            <button class="btn-menu locked" id="btn-swell" onclick="openCalc('swell', 'Swell/Shrink Factor')">11. Swell/Shrink Factor <span>🔒</span></button>
+            <button class="btn-menu glass" data-calc="unit" data-name="Unit Converter">9. Unit Converter <span>&#8250;</span></button>
+            <button class="btn-menu glass" data-calc="weight" data-name="Material Weight">10. Material Weight <span>&#8250;</span></button>
+            <button class="btn-menu locked glass" data-calc="swell" data-name="Swell/Shrink Factor">11. Swell/Shrink Factor <span>🔒</span></button>
         </div>
     </div>
 
     <!-- VIEW 3: SETTINGS -->
     <div id="view-settings" class="view">
-        <div class="calc-form active" style="display:block;">
+        <div class="calc-form glass active" style="display:block;">
             <h2 style="color:var(--brand-gold); margin-bottom:5px; font-size:1.5rem;">Pro Settings</h2>
             <p style="color:var(--text-muted); margin-bottom:20px; font-size:0.9rem;">This info will appear at the top of your PDF Reports to look professional for clients.</p>
             <div class="input-group"><label>Company Name</label><input type="text" id="set-company" placeholder="e.g. Apex Excavation"></div>
             <div class="input-group"><label>Phone Number</label><input type="text" id="set-phone" placeholder="e.g. (555) 123-4567"></div>
             <div class="input-group"><label>Email Address</label><input type="text" id="set-email" placeholder="e.g. info@apex.com"></div>
-            <button class="btn-action primary" onclick="saveSettings()" style="width:100%; margin-top:10px;">Save Profile</button>
+            <button class="btn-action primary" id="btn-save-settings" style="width:100%; margin-top:10px;">Save Profile</button>
         </div>
-        <div class="calc-form active" style="display:block; margin-top:20px;">
-            <h3 style="color:var(--text-main); margin-bottom:10px;">Developer Tools</h3>
-            <button class="btn-action" onclick="resetApp()" style="width:100%; border-color:red; color:red;">Reset App (Lock Pro)</button>
+        
+        <div class="calc-form glass active" style="display:block; margin-top:20px;">
+            <h3 style="color:var(--text-main); margin-bottom:10px;">Account</h3>
+            <!-- NEW LOGOUT BUTTON -->
+            <button class="btn-action" id="btn-logout" style="width:100%; border-color:rgba(255,50,50,0.5); color:#ff5555; background:rgba(255,0,0,0.1); margin-bottom:10px;">Log Out</button>
+            <button class="btn-action" id="btn-reset-app" style="width:100%; border-color:rgba(255,50,50,0.5); color:#ff5555; background:rgba(255,0,0,0.1);">Reset App (Lock Pro)</button>
         </div>
     </div>
 
     <!-- VIEW 2: CALCULATOR INTERFACE -->
     <div id="view-calc" class="view">
-        <div class="results-board"><h2 id="result-title">Result</h2><div class="results-output" id="primary-result">0.00</div><div class="results-sub" id="secondary-result">--</div></div>
+        <div class="results-board glass-gold"><h2 id="result-title">Result</h2><div class="results-output" id="primary-result">0.00</div><div class="results-sub" id="secondary-result">--</div></div>
         
-        <!-- FORMS -->
-        <div id="form-prod" class="calc-form"><div class="input-group"><label>Bucket Cap <span class="unit-label lbl-vol"></span></label><input type="number" id="prod-cap" placeholder="e.g. 1.5"></div><div class="input-group"><label>Cycle Time (Sec)</label><input type="number" id="prod-cycle" placeholder="e.g. 20"></div><div class="input-group"><label>Efficiency</label><select id="prod-eff"><option value="1">100% Perfect</option><option value="0.8" selected>80% Standard</option><option value="0.6">60% Hard</option></select></div></div>
-        <div id="form-bucket" class="calc-form"><div class="input-group"><label>Inside Width <span class="unit-label lbl-small"></span></label><input type="number" id="buc-w" placeholder="e.g. 36"></div><div class="input-group"><label>Inside Length <span class="unit-label lbl-small"></span></label><input type="number" id="buc-l" placeholder="e.g. 30"></div><div class="input-group"><label>Inside Depth <span class="unit-label lbl-small"></span></label><input type="number" id="buc-d" placeholder="e.g. 24"></div></div>
-        <div id="form-fuel" class="calc-form"><div class="input-group"><label>Burn Rate <span class="unit-label lbl-liq-hr"></span></label><input type="number" id="fuel-rate" placeholder="e.g. 4"></div><div class="input-group"><label>Price per <span class="unit-label lbl-liq"></span></label><input type="number" id="fuel-price" placeholder="e.g. 3.50"></div><div class="input-group"><label>Hours Worked</label><input type="number" id="fuel-hrs" placeholder="e.g. 8"></div></div>
-        <div id="form-trench" class="calc-form"><div class="input-group"><label>Length <span class="unit-label lbl-len"></span></label><input type="number" id="tr-len" placeholder="e.g. 100"></div><div class="input-group"><label>Top Width <span class="unit-label lbl-len"></span></label><input type="number" id="tr-tw" placeholder="e.g. 4"></div><div class="input-group"><label>Bottom Width <span class="unit-label lbl-len"></span></label><input type="number" id="tr-bw" placeholder="e.g. 2"></div><div class="input-group"><label>Depth <span class="unit-label lbl-len"></span></label><input type="number" id="tr-dep" placeholder="e.g. 4"></div></div>
-        <div id="form-slab" class="calc-form"><div class="input-group"><label>Length <span class="unit-label lbl-len"></span></label><input type="number" id="sl-l" placeholder="e.g. 20"></div><div class="input-group"><label>Width <span class="unit-label lbl-len"></span></label><input type="number" id="sl-w" placeholder="e.g. 10"></div><div class="input-group"><label>Thickness <span class="unit-label lbl-small"></span></label><input type="number" id="sl-d" placeholder="e.g. 4"></div><div class="input-group"><label>Waste Buffer %</label><input type="number" id="sl-buf" placeholder="e.g. 10"></div></div>
-        <div id="form-curb" class="calc-form"><div class="input-group"><label>Total Length <span class="unit-label lbl-len"></span></label><input type="number" id="cu-l" placeholder="e.g. 50"></div><div class="input-group"><label>Curb Height <span class="unit-label lbl-small"></span></label><input type="number" id="cu-ch" placeholder="e.g. 6"></div><div class="input-group"><label>Curb Width <span class="unit-label lbl-small"></span></label><input type="number" id="cu-cw" placeholder="e.g. 6"></div><div class="input-group"><label>Gutter Width <span class="unit-label lbl-small"></span></label><input type="number" id="cu-gw" placeholder="e.g. 12"></div><div class="input-group"><label>Flag Thickness <span class="unit-label lbl-small"></span></label><input type="number" id="cu-ft" placeholder="e.g. 6"></div></div>
-        <div id="form-post" class="calc-form"><div class="input-group"><label>Hole Shape</label><select id="po-type"><option value="round">Round Cylinder</option><option value="square">Square Prism</option></select></div><div class="input-group"><label>Diameter/Width <span class="unit-label lbl-small"></span></label><input type="number" id="po-w" placeholder="e.g. 12"></div><div class="input-group"><label>Depth <span class="unit-label lbl-len"></span></label><input type="number" id="po-d" placeholder="e.g. 4"></div><div class="input-group"><label>Number of Holes</label><input type="number" id="po-qty" placeholder="e.g. 10"></div></div>
-        <div id="form-block" class="calc-form"><div class="input-group"><label>Wall Length <span class="unit-label lbl-len"></span></label><input type="number" id="bl-l" placeholder="e.g. 20"></div><div class="input-group"><label>Wall Height <span class="unit-label lbl-len"></span></label><input type="number" id="bl-h" placeholder="e.g. 6"></div><div class="input-group"><label>Block Type</label><select id="bl-type"><option value="cmu">Standard CMU (16x8in / 400x200mm)</option><option value="brick">Standard Brick</option></select></div></div>
-        <div id="form-unit" class="calc-form"><div class="input-group"><label>Convert Type</label><select id="un-type"><option value="len">Length (ft ↔ m)</option><option value="vol">Volume (yd³ ↔ m³)</option><option value="wt">Weight (lbs ↔ kg)</option></select></div><div class="input-group"><label>Input Value</label><input type="number" id="un-val" placeholder="e.g. 10"></div></div>
-        <div id="form-weight" class="calc-form"><div class="input-group"><label>Total Volume <span class="unit-label lbl-vol"></span></label><input type="number" id="wt-v" placeholder="e.g. 10"></div><div class="input-group"><label>Material Type</label><select id="wt-mat"><option value="1600">Dry Sand</option><option value="2000">Wet Sand / Gravel</option><option value="1200">Loose Topsoil</option><option value="2400">Solid Concrete</option></select></div></div>
-        <div id="form-swell" class="calc-form"><div class="input-group"><label>Bank/Dug Volume <span class="unit-label lbl-vol"></span></label><input type="number" id="sw-v" placeholder="e.g. 100"></div><div class="input-group"><label>Soil Type (Swell %)</label><select id="sw-pct"><option value="0.12">Sand / Gravel (12%)</option><option value="0.25" selected>Standard Earth (25%)</option><option value="0.40">Hard Clay (40%)</option><option value="0.60">Blasted Rock (60%)</option></select></div></div>
+        <div id="form-prod" class="calc-form glass"><div class="input-group"><label>Bucket Cap <span class="unit-label lbl-vol"></span></label><input type="number" id="prod-cap" placeholder="e.g. 1.5"></div><div class="input-group"><label>Cycle Time (Sec)</label><input type="number" id="prod-cycle" placeholder="e.g. 20"></div><div class="input-group"><label>Efficiency</label><select id="prod-eff"><option value="1">100% Perfect</option><option value="0.8" selected>80% Standard</option><option value="0.6">60% Hard</option></select></div></div>
+        <div id="form-bucket" class="calc-form glass"><div class="input-group"><label>Inside Width <span class="unit-label lbl-small"></span></label><input type="number" id="buc-w" placeholder="e.g. 36"></div><div class="input-group"><label>Inside Length <span class="unit-label lbl-small"></span></label><input type="number" id="buc-l" placeholder="e.g. 30"></div><div class="input-group"><label>Inside Depth <span class="unit-label lbl-small"></span></label><input type="number" id="buc-d" placeholder="e.g. 24"></div></div>
+        <div id="form-fuel" class="calc-form glass"><div class="input-group"><label>Burn Rate <span class="unit-label lbl-liq-hr"></span></label><input type="number" id="fuel-rate" placeholder="e.g. 4"></div><div class="input-group"><label>Price per <span class="unit-label lbl-liq"></span></label><input type="number" id="fuel-price" placeholder="e.g. 3.50"></div><div class="input-group"><label>Hours Worked</label><input type="number" id="fuel-hrs" placeholder="e.g. 8"></div></div>
+        <div id="form-trench" class="calc-form glass"><div class="input-group"><label>Length <span class="unit-label lbl-len"></span></label><input type="number" id="tr-len" placeholder="e.g. 100"></div><div class="input-group"><label>Top Width <span class="unit-label lbl-len"></span></label><input type="number" id="tr-tw" placeholder="e.g. 4"></div><div class="input-group"><label>Bottom Width <span class="unit-label lbl-len"></span></label><input type="number" id="tr-bw" placeholder="e.g. 2"></div><div class="input-group"><label>Depth <span class="unit-label lbl-len"></span></label><input type="number" id="tr-dep" placeholder="e.g. 4"></div></div>
+        <div id="form-slab" class="calc-form glass"><div class="input-group"><label>Length <span class="unit-label lbl-len"></span></label><input type="number" id="sl-l" placeholder="e.g. 20"></div><div class="input-group"><label>Width <span class="unit-label lbl-len"></span></label><input type="number" id="sl-w" placeholder="e.g. 10"></div><div class="input-group"><label>Thickness <span class="unit-label lbl-small"></span></label><input type="number" id="sl-d" placeholder="e.g. 4"></div><div class="input-group"><label>Waste Buffer %</label><input type="number" id="sl-buf" placeholder="e.g. 10"></div></div>
+        <div id="form-curb" class="calc-form glass"><div class="input-group"><label>Total Length <span class="unit-label lbl-len"></span></label><input type="number" id="cu-l" placeholder="e.g. 50"></div><div class="input-group"><label>Curb Height <span class="unit-label lbl-small"></span></label><input type="number" id="cu-ch" placeholder="e.g. 6"></div><div class="input-group"><label>Curb Width <span class="unit-label lbl-small"></span></label><input type="number" id="cu-cw" placeholder="e.g. 6"></div><div class="input-group"><label>Gutter Width <span class="unit-label lbl-small"></span></label><input type="number" id="cu-gw" placeholder="e.g. 12"></div><div class="input-group"><label>Flag Thickness <span class="unit-label lbl-small"></span></label><input type="number" id="cu-ft" placeholder="e.g. 6"></div></div>
+        <div id="form-post" class="calc-form glass"><div class="input-group"><label>Hole Shape</label><select id="po-type"><option value="round">Round Cylinder</option><option value="square">Square Prism</option></select></div><div class="input-group"><label>Diameter/Width <span class="unit-label lbl-small"></span></label><input type="number" id="po-w" placeholder="e.g. 12"></div><div class="input-group"><label>Depth <span class="unit-label lbl-len"></span></label><input type="number" id="po-d" placeholder="e.g. 4"></div><div class="input-group"><label>Number of Holes</label><input type="number" id="po-qty" placeholder="e.g. 10"></div></div>
+        <div id="form-block" class="calc-form glass"><div class="input-group"><label>Wall Length <span class="unit-label lbl-len"></span></label><input type="number" id="bl-l" placeholder="e.g. 20"></div><div class="input-group"><label>Wall Height <span class="unit-label lbl-len"></span></label><input type="number" id="bl-h" placeholder="e.g. 6"></div><div class="input-group"><label>Block Type</label><select id="bl-type"><option value="cmu">Standard CMU (16x8in / 400x200mm)</option><option value="brick">Standard Brick</option></select></div></div>
+        <div id="form-unit" class="calc-form glass"><div class="input-group"><label>Convert Type</label><select id="un-type"><option value="len">Length (ft ↔ m)</option><option value="vol">Volume (yd³ ↔ m³)</option><option value="wt">Weight (lbs ↔ kg)</option></select></div><div class="input-group"><label>Input Value</label><input type="number" id="un-val" placeholder="e.g. 10"></div></div>
+        <div id="form-weight" class="calc-form glass"><div class="input-group"><label>Total Volume <span class="unit-label lbl-vol"></span></label><input type="number" id="wt-v" placeholder="e.g. 10"></div><div class="input-group"><label>Material Type</label><select id="wt-mat"><option value="1600">Dry Sand</option><option value="2000">Wet Sand / Gravel</option><option value="1200">Loose Topsoil</option><option value="2400">Solid Concrete</option></select></div></div>
+        <div id="form-swell" class="calc-form glass"><div class="input-group"><label>Bank/Dug Volume <span class="unit-label lbl-vol"></span></label><input type="number" id="sw-v" placeholder="e.g. 100"></div><div class="input-group"><label>Soil Type (Swell %)</label><select id="sw-pct"><option value="0.12">Sand / Gravel (12%)</option><option value="0.25" selected>Standard Earth (25%)</option><option value="0.40">Hard Clay (40%)</option><option value="0.60">Blasted Rock (60%)</option></select></div></div>
 
         <!-- USAGE TRACKERS -->
         <div id="usage-display" class="usage-tracker"></div>
 
-        <div class="history-tape">
+        <div class="history-tape glass">
             <div class="history-header"><h2>History Tape</h2></div>
             <div id="history-list"></div>
         </div>
     </div>
 
     <!-- BOTTOM NAVBAR -->
-    <nav class="bottom-nav">
-        <button class="nav-btn primary" onclick="handleNavAction('pdf')">
+    <nav class="bottom-nav glass" id="main-bottom-nav" style="display: none;">
+        <button class="nav-btn primary" data-action="pdf">
             <svg viewBox="0 0 24 24"><path fill="none" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline fill="none" points="14 2 14 8 20 8"></polyline><line fill="none" x1="12" y1="18" x2="12" y2="12"></line><polyline fill="none" points="9 15 12 18 15 15"></polyline></svg>
             Save PDF
         </button>
-        <button class="nav-btn primary" onclick="handleNavAction('log')">
+        <button class="nav-btn primary" data-action="log">
             <svg viewBox="0 0 24 24"><path fill="none" d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
             Log History
         </button>
-        <button class="nav-btn" onclick="exportBackup()">
+        <button class="nav-btn" data-action="export">
             <svg viewBox="0 0 24 24"><path fill="none" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline fill="none" points="17 8 12 3 7 8"></polyline><line fill="none" x1="12" y1="3" x2="12" y2="15"></line></svg>
             Export Logs
         </button>
     </nav>
-
-    <script>
-        // --- PAYWALL & USAGE ENGINE ---
-        let isProUser = localStorage.getItem('dm_is_pro') === 'true';
-        const FREE_LIMIT = 5;
-
-        function checkMonthlyUsage() {
-            const currentMonth = new Date().toISOString().slice(0, 7); 
-            if (localStorage.getItem('dm_usage_month') !== currentMonth) {
-                localStorage.setItem('dm_usage_month', currentMonth);
-                localStorage.setItem('dm_pdf_count', '0');
-                localStorage.setItem('dm_log_count', '0');
-            }
-        }
-        checkMonthlyUsage();
-
-        function getUsage(action) { return parseInt(localStorage.getItem(`dm_${action}_count`) || '0'); }
-        function incrementUsage(action) { localStorage.setItem(`dm_${action}_count`, getUsage(action) + 1); updateUsageDisplay(); }
-
-        function updateUIForPro() {
-            const proCalcs = ['prod', 'fuel', 'curb', 'swell'];
-            proCalcs.forEach(id => {
-                const btn = document.getElementById(`btn-${id}`);
-                if(btn) {
-                    if (isProUser) { btn.classList.remove('locked'); btn.innerHTML = btn.innerHTML.replace('🔒', '&#8250;'); } 
-                    else { btn.classList.add('locked'); btn.innerHTML = btn.innerHTML.replace('›', '🔒').replace('&#8250;', '🔒'); }
-                }
-            });
-            document.getElementById('pro-badge').style.display = isProUser ? 'inline-block' : 'none';
-            updateUsageDisplay();
-        }
-
-        function updateUsageDisplay() {
-            if(isProUser) { document.getElementById('usage-display').innerText = "PRO ACCOUNT: Unlimited Usage"; return; }
-            document.getElementById('usage-display').innerText = `Free Uses This Month - PDFs: ${getUsage('pdf')}/5 | Logs: ${getUsage('log')}/5`;
-        }
-
-        function showPaywall(message) {
-            document.getElementById('paywall-msg').innerText = message;
-            document.getElementById('paywall-modal').style.display = 'flex';
-        }
-        function closePaywall() { document.getElementById('paywall-modal').style.display = 'none'; }
-        
-        function testUnlockPro() {
-            localStorage.setItem('dm_is_pro', 'true'); isProUser = true; closePaywall(); updateUIForPro(); alert("App Unlocked! Thank you for purchasing DirtMath Pro.");
-        }
-        function resetApp() { localStorage.setItem('dm_is_pro', 'false'); isProUser=false; updateUIForPro(); goHome(); alert("App reset to Free mode.");}
-
-
-        // --- STATE & NAVIGATION ---
-        let currentUnit = 'imperial'; 
-        let activeCalcId = '';
-        let activeCalcName = '';
-        let pendingAction = ''; 
-
-        const viewHome = document.getElementById('view-home'); const viewCalc = document.getElementById('view-calc'); const viewSettings = document.getElementById('view-settings');
-        const btnBack = document.getElementById('btn-back'); const btnSettings = document.getElementById('btn-settings'); const unitToggleBox = document.getElementById('unit-toggle-box');
-        const appTitle = document.getElementById('app-title'); const primaryResult = document.getElementById('primary-result'); const secondaryResult = document.getElementById('secondary-result');
-
-        document.getElementById('set-company').value = localStorage.getItem('dm_company') || '';
-        document.getElementById('set-phone').value = localStorage.getItem('dm_phone') || '';
-        document.getElementById('set-email').value = localStorage.getItem('dm_email') || '';
-
-        document.querySelectorAll('input, select').forEach(el => { el.addEventListener('input', calculate); });
-
-        function hideAllViews() { viewHome.classList.remove('active'); viewCalc.classList.remove('active'); viewSettings.classList.remove('active'); }
-
-        function openSettings() {
-            hideAllViews(); activeCalcId = ''; viewSettings.classList.add('active'); btnBack.style.display = 'flex'; btnSettings.style.display = 'none'; unitToggleBox.style.display = 'none'; appTitle.innerHTML = 'Settings';
-        }
-
-        function openCalc(calcId, calcName) {
-            const proCalcs = ['prod', 'fuel', 'curb', 'swell'];
-            if (!isProUser && proCalcs.includes(calcId)) { showPaywall("This is a Pro Tool."); return; }
-
-            activeCalcId = calcId; activeCalcName = calcName;
-            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
-            primaryResult.innerHTML = "0.00"; secondaryResult.innerText = "--";
-
-            hideAllViews(); viewCalc.classList.add('active');
-            btnBack.style.display = 'flex'; btnSettings.style.display = 'flex'; unitToggleBox.style.display = 'flex'; appTitle.innerHTML = calcName;
-            document.querySelectorAll('.calc-form').forEach(f => f.classList.remove('active'));
-            document.getElementById(`form-${calcId}`).classList.add('active');
-            updateLabels();
-        }
-
-        function goHome() {
-            hideAllViews(); activeCalcId = ''; viewHome.classList.add('active');
-            btnBack.style.display = 'none'; btnSettings.style.display = 'flex'; unitToggleBox.style.display = 'flex'; appTitle.innerHTML = 'Dirt<span>Math</span>';
-        }
-
-        function saveSettings() {
-            localStorage.setItem('dm_company', document.getElementById('set-company').value); localStorage.setItem('dm_phone', document.getElementById('set-phone').value); localStorage.setItem('dm_email', document.getElementById('set-email').value);
-            alert("Profile Saved!"); goHome();
-        }
-
-        function switchUnit(unit) {
-            currentUnit = unit; document.getElementById('btn-metric').classList.toggle('active', unit === 'metric'); document.getElementById('btn-imperial').classList.toggle('active', unit === 'imperial');
-            updateLabels(); if(activeCalcId) calculate();
-        }
-
-        function updateLabels() {
-            const isM = currentUnit === 'metric';
-            document.querySelectorAll('.lbl-vol').forEach(el => el.innerText = isM ? '(m³)' : '(yd³)'); document.querySelectorAll('.lbl-len').forEach(el => el.innerText = isM ? '(m)' : '(ft)');
-            document.querySelectorAll('.lbl-small').forEach(el => el.innerText = isM ? '(cm)' : '(in)'); document.querySelectorAll('.lbl-liq').forEach(el => el.innerText = isM ? '(Liters)' : '(Gal)');
-            document.querySelectorAll('.lbl-liq-hr').forEach(el => el.innerText = isM ? '(L/hr)' : '(Gal/hr)');
-        }
-
-        function calculate() {
-            primaryResult.classList.remove('animating'); void primaryResult.offsetWidth; primaryResult.classList.add('animating');
-            const isM = currentUnit === 'metric'; let res1 = "0.00", res2 = "--"; const val = (id) => parseFloat(document.getElementById(id).value) || 0;
-
-            if (activeCalcId === 'prod') { if(val('prod-cycle') > 0) { const p = (val('prod-cap') / val('prod-cycle')) * 3600 * val('prod-eff'); res1 = `${p.toFixed(1)} ${isM ? 'm³' : 'yd³'}/hr`; res2 = "Based on inputs"; } }
-            else if (activeCalcId === 'bucket') { let vol = isM ? (val('buc-w')/100)*(val('buc-l')/100)*(val('buc-d')/100) : ((val('buc-w')/12)*(val('buc-l')/12)*(val('buc-d')/12))/27; res1 = `${vol.toFixed(3)} ${isM ? 'm³' : 'yd³'}`; res2 = `Heaped (x1.25): ${(vol*1.25).toFixed(3)}`; }
-            else if (activeCalcId === 'fuel') { res1 = `$${(val('fuel-rate') * val('fuel-price') * val('fuel-hrs')).toFixed(2)}`; res2 = `Used: ${(val('fuel-rate')*val('fuel-hrs')).toFixed(1)} ${isM ? 'L' : 'Gal'}`; }
-            else if (activeCalcId === 'trench') { let vol = val('tr-len') * ((val('tr-tw') + val('tr-bw'))/2) * val('tr-dep'); if(!isM) vol /= 27; res1 = `${vol.toFixed(2)} ${isM ? 'm³' : 'yd³'}`; res2 = "Solid bank volume"; }
-            else if (activeCalcId === 'slab') { let vol = isM ? val('sl-l') * val('sl-w') * (val('sl-d')/100) : (val('sl-l') * val('sl-w') * (val('sl-d')/12))/27; vol *= (1 + val('sl-buf')/100); res1 = `${vol.toFixed(2)} ${isM ? 'm³' : 'yd³'}`; res2 = `${Math.ceil(vol * (isM?60:45))} Standard Bags`; }
-            else if (activeCalcId === 'curb') { const div = isM ? 100 : 12; let vol = (((val('cu-cw')/div) * (val('cu-ch')/div)) + ((val('cu-gw')/div) * (val('cu-ft')/div))) * val('cu-l'); if(!isM) vol /= 27; res1 = `${vol.toFixed(2)} ${isM ? 'm³' : 'yd³'}`; res2 = "Includes curb + gutter tray"; }
-            else if (activeCalcId === 'post') { const w = val('po-w') / (isM ? 100 : 12); let sv = document.getElementById('po-type').value === 'round' ? (Math.PI * Math.pow(w/2, 2) * val('po-d')) : (w * w * val('po-d')); let total = sv * val('po-qty'); if(!isM) total /= 27; res1 = `${total.toFixed(2)} ${isM ? 'm³' : 'yd³'}`; res2 = `For ${val('po-qty') || 0} holes`; }
-            else if (activeCalcId === 'block') { const wa = val('bl-l') * val('bl-h'); let ba = document.getElementById('bl-type').value === 'cmu' ? (isM ? 0.08 : 0.888) : (isM ? 0.014 : 0.15); res1 = `${Math.ceil(wa / ba)}`; res2 = `Wall Area: ${wa.toFixed(1)} ${isM ? 'm²' : 'ft²'}`; }
-            else if (activeCalcId === 'unit') { const t = document.getElementById('un-type').value, v = val('un-val'); if(t==='len') res1 = `${isM ? (v*3.28084).toFixed(2)+' ft' : (v/3.28084).toFixed(2)+' m'}`; if(t==='vol') res1 = `${isM ? (v*1.30795).toFixed(2)+' yd³' : (v/1.30795).toFixed(2)+' m³'}`; if(t==='wt') res1 = `${isM ? (v*2.20462).toFixed(2)+' lbs' : (v/2.20462).toFixed(2)+' kg'}`; res2 = "Converted"; }
-            else if (activeCalcId === 'weight') { let kg = isM ? val('wt-v') * val('wt-mat') : (val('wt-v')*0.7645) * val('wt-mat'); res1 = `${(isM ? kg/1000 : kg*0.00110231).toFixed(2)} ${isM ? 'Metric Tons' : 'Short Tons'}`; res2 = `${isM ? kg.toFixed(0)+' kg' : (kg*2.204).toFixed(0)+' lbs'}`; }
-            else if (activeCalcId === 'swell') { const loose = val('sw-v') * (1 + parseFloat(document.getElementById('sw-pct').value)); res1 = `${loose.toFixed(2)} ${isM ? 'm³' : 'yd³'}`; res2 = `${(loose - val('sw-v')).toFixed(2)} extra expansion`; }
-
-            primaryResult.innerHTML = res1; secondaryResult.innerText = res2;
-        }
-
-        // --- ACTION MODALS & USAGE CHECKS FROM BOTTOM NAV ---
-        function handleNavAction(action) {
-            // Check if they are actually in a calculator before saving/printing
-            if (!activeCalcId && (action === 'pdf' || action === 'log')) {
-                alert("Please open a calculator to generate a report or log.");
-                return;
-            }
-
-            if (action === 'pdf' || action === 'log') {
-                if(primaryResult.innerText === "0.00" || primaryResult.innerText.includes("NaN")) { alert("Please enter values first."); return; }
-                
-                if (!isProUser) {
-                    if (getUsage(action) >= FREE_LIMIT) {
-                        showPaywall(`You have reached your limit of 5 free ${action === 'pdf' ? 'PDFs' : 'Logs'} for this month.`); return;
-                    }
-                }
-                pendingAction = action;
-                document.getElementById('project-modal').style.display = 'flex';
-                document.getElementById('modal-proj-name').focus();
-            }
-        }
-
-        function closeModal() { document.getElementById('project-modal').style.display = 'none'; document.getElementById('modal-proj-name').value = ''; }
-
-        function confirmModal() {
-            const projName = document.getElementById('modal-proj-name').value || 'General Estimate';
-            closeModal();
-            if (!isProUser) incrementUsage(pendingAction);
-            if(pendingAction === 'log') saveToHistory(projName);
-            if(pendingAction === 'pdf') generatePDF(projName);
-        }
-
-        // --- HISTORY TAPE ---
-        function saveToHistory(projName) {
-            const date = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let history = JSON.parse(localStorage.getItem('tc_history')) || [];
-            history.unshift({ proj: projName, title: activeCalcName, res: primaryResult.innerText, sub: secondaryResult.innerText, time: date });
-            if(history.length > 20) history.pop(); localStorage.setItem('tc_history', JSON.stringify(history)); renderHistory();
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('history-list'); const history = JSON.parse(localStorage.getItem('tc_history')) || [];
-            if(history.length === 0) { container.innerHTML = "<div style='color:#6B7280;'>No history yet.</div>"; return; }
-            container.innerHTML = history.map(item => `<div class="history-item"><div class="history-title">${item.proj} <span style="float:right; color:#6B7280; font-size:0.85rem; font-weight:normal;">${item.time}</span></div><div class="history-subtitle">${item.title}</div><div class="history-res">${item.res}</div><div style="color:#A1A1AA; font-size:0.9rem;">${item.sub}</div></div>`).join('');
-        }
-
-        function exportBackup() {
-            const history = localStorage.getItem('tc_history'); if(!history) { alert("No history to export."); return; }
-            const blob = new Blob([history], { type: "application/json" }); const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = "DirtMath_Logs.json"; a.click();
-        }
-
-        // --- PDF GENERATOR ---
-        function generatePDF(projName) {
-            if (!window.jspdf) { alert("PDF Library loading..."); return; }
-            const { jsPDF } = window.jspdf; const doc = new jsPDF();
-            const compName = localStorage.getItem('dm_company') || 'DIRTMATH PRO'; const compPhone = localStorage.getItem('dm_phone') || ''; const compEmail = localStorage.getItem('dm_email') || ''; const dateStr = new Date().toLocaleDateString();
-
-            doc.setTextColor(30, 33, 38); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text(compName.toUpperCase(), 15, 25);
-            doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(100, 100, 100);
-            if(compPhone) doc.text(`Phone: ${compPhone}`, 15, 32); if(compEmail) doc.text(`Email: ${compEmail}`, 15, 37);
-            doc.setFontSize(26); doc.setFont("helvetica", "bold"); doc.setTextColor(245, 166, 35); doc.text("ESTIMATE", 195, 25, { align: "right" });
-            doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.text(`Date: ${dateStr}`, 195, 32, { align: "right" });
-            doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.5); doc.line(15, 45, 195, 45);
-
-            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 33, 38); doc.text(`Project: ${projName}`, 15, 55);
-            doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.text(`Calculation: ${activeCalcName} (${currentUnit.toUpperCase()})`, 15, 62);
-
-            doc.setFillColor(245, 245, 245); doc.rect(15, 70, 180, 10, 'F');
-            doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.setTextColor(80, 80, 80); doc.text("PARAMETERS", 20, 77); doc.text("VALUE", 185, 77, { align: "right" });
-
-            doc.setFont("helvetica", "normal"); doc.setTextColor(30, 33, 38); let y = 88;
-            const inputs = document.getElementById(`form-${activeCalcId}`).querySelectorAll('input, select');
-            inputs.forEach(input => {
-                let label = input.previousElementSibling.innerText; let val = input.tagName === 'SELECT' ? input.options[input.selectedIndex].text : (input.value || "0");
-                doc.text(label, 20, y); doc.text(val.toString(), 185, y, { align: "right" }); doc.setDrawColor(240, 240, 240); doc.line(15, y+3, 195, y+3); y += 10;
-            });
-
-            y += 10; doc.setFillColor(245, 166, 35); doc.rect(15, y, 180, 32, 'F'); doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("FINAL RESULT", 25, y + 12);
-            doc.setFontSize(24); doc.text(primaryResult.innerText, 25, y + 24);
-            doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text(secondaryResult.innerText, 185, y + 20, { align: "right" });
-            doc.setTextColor(150, 150, 150); doc.setFontSize(9); doc.text("Generated by DirtMath Pro - The Blue Collar Toolkit", 105, 285, { align: "center" });
-
-            doc.save(`${projName.replace(/\s+/g, '_')}_Estimate.pdf`);
-        }
-
-        updateUIForPro(); renderHistory(); updateLabels();
-    </script>
 </body>
 </html>
